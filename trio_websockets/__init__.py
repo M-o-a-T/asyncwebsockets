@@ -1,8 +1,10 @@
 """
 Websocket library for curio + trio.
 """
-from trio_websockets.client import connect_websocket
-from trio_websockets.ws import ClientWebsocket, WebsocketBytesMessage, WebsocketClosed, \
+from ._version import __version__  # noqa
+
+from .client import connect_websocket
+from .ws import ClientWebsocket, WebsocketBytesMessage, WebsocketClosed, \
     WebsocketConnectionEstablished, WebsocketConnectionFailed, WebsocketMessage, \
     WebsocketTextMessage
 

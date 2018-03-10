@@ -3,11 +3,14 @@ from pathlib import Path
 
 from setuptools import setup
 
+exec(open("trio_websockets/_version.py", encoding="utf-8").read())
+
 if sys.version_info[0:2] < (3, 6):
     raise RuntimeError("This package requires Python 3.6+.")
 
 setup(
     name="trio-websockets",
+    version=__version__,  # noqa: F821
     use_scm_version={
         "version_scheme": "guess-next-dev",
         "local_scheme": "dirty-tag"
