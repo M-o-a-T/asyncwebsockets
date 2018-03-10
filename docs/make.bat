@@ -9,7 +9,7 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR=source
 set BUILDDIR=build
-set SPHINXPROJ=asyncwebsockets
+set SPHINXPROJ=trio_websockets
 
 if "%1" == "" goto help
 

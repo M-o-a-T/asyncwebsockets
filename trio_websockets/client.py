@@ -3,12 +3,12 @@ Websocket client functions.
 """
 from urllib.parse import urlparse
 
-from asyncwebsockets.ws import ClientWebsocket
+from trio_websockets.ws import ClientWebsocket
 
 
 async def connect_websocket(url: str = None, *,
                             host: str = None, port: int = None,
-                            endpoint: str = None, ssl: bool = False,
+                            endpoint: str = None, ssl = None,
                             reconnecting: bool = True) -> ClientWebsocket:
     """
     Connects a websocket to a server.
@@ -23,6 +23,7 @@ async def connect_websocket(url: str = None, *,
     :param port: The port to connect to.
     :param endpoint: The endpoint to connect to.
     :param ssl: If SSL should be used to connect.
+        Either a bool or a SSLContext.
 
     This also accepts some additional options:
 
@@ -33,7 +34,8 @@ async def connect_websocket(url: str = None, *,
     if url is not None:
         # decompose URL into individual parts
         split = urlparse(url)
-        ssl = split.scheme == "wss"
+        if ssl is None:
+            ssl = split.scheme == "wss"
 
         # try and detect host/port automatically
         try:

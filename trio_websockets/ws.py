@@ -4,7 +4,8 @@ Common code for both client and server.
 from io import BytesIO, StringIO
 from typing import Tuple, Union
 
-import multio
+import trio
+import ssl
 from wsproto import events
 from wsproto.connection import ConnectionType, WSConnection
 
@@ -87,7 +88,7 @@ class ClientWebsocket(object):
         self.state = None  # type: WSConnection
         self._ready = False
         self._reconnecting = reconnecting
-        self.sock = None  # type: multio.SocketWrapper
+        self.sock = None  # type: trio.socket.Socket
 
     @property
     def closed(self) -> bool:
@@ -96,17 +97,40 @@ class ClientWebsocket(object):
         """
         return self.state.closed
 
+    def _create_ssl_ctx(self, sslp):
+        if isinstance(sslp, ssl.SSLContext):
+            return sslp
+        ca = sslp.get('ca')
+        capath = sslp.get('capath')
+        hasnoca = ca is None and capath is None
+        ctx = ssl.create_default_context(cafile=ca, capath=capath)
+        ctx.check_hostname = not hasnoca and sslp.get('check_hostname', True)
+        ctx.verify_mode = ssl.CERT_NONE if hasnoca else ssl.CERT_REQUIRED
+        if 'cert' in sslp:
+            ctx.load_cert_chain(sslp['cert'], keyfile=sslp.get('key'))
+        if 'cipher' in sslp:
+            ctx.set_ciphers(sslp['cipher'])
+        ctx.options |= ssl.OP_NO_SSLv2
+        ctx.options |= ssl.OP_NO_SSLv3
+        return ctx
+
     async def open_connection(self):
         """
         Opens a connection, and performs the initial handshake.
         """
-        _sock = await multio.asynclib.open_connection(self._address[0], self._address[1],
-                                                      ssl=self._address[2])
-        self.sock = multio.SocketWrapper(_sock)
+        _ssl = self._address[2]
+        _sock = await trio.open_tcp_stream(self._address[0], self._address[1])
+        if _ssl:
+            if _ssl is True:
+                _ssl = {}
+            _ssl = self._create_ssl_ctx(_ssl)
+            _sock = trio.ssl.SSLStream(_sock, _ssl, server_hostname=self._address[0], https_compatible=True)
+            await _sock.do_handshake()
+        self.sock = _sock
         self.state = WSConnection(ConnectionType.CLIENT, host=self._address[0],
                                   resource=self._address[3])
         res = self.state.bytes_to_send()
-        await self.sock.sendall(res)
+        await self.sock.send_all(res)
 
     async def __aiter__(self):
         # initiate the websocket
@@ -115,14 +139,14 @@ class ClientWebsocket(object):
         buf_bytes = BytesIO()
         buf_text = StringIO()
 
-        while True:
-            data = await self.sock.recv(4096)
+        while self.sock is not None:
+            data = await self.sock.receive_some(4096)
             self.state.receive_bytes(data)
 
             # do ping/pongs if needed
             to_send = self.state.bytes_to_send()
             if to_send:
-                await self.sock.sendall(to_send)
+                await self.sock.send_all(to_send)
 
             for event in self.state.events():
                 if isinstance(event, events.ConnectionEstablished):
@@ -171,9 +195,9 @@ class ClientWebsocket(object):
         :param data: The data to send. Either str or bytes.
         """
         self.state.send_data(data, final=True)
-        return await self.sock.sendall(self.state.bytes_to_send())
+        return await self.sock.send_all(self.state.bytes_to_send())
 
-    async def close(self, *, code: int = 1000, reason: str = "No reason",
+    async def aclose(self, *, code: int = 1000, reason: str = "No reason",
                     allow_reconnects: bool = False):
         """
         Closes the websocket.
@@ -191,6 +215,8 @@ class ClientWebsocket(object):
 
         self.state.close(code=code, reason=reason)
         to_send = self.state.bytes_to_send()
-        await self.sock.sendall(to_send)
-        await self.sock.close()
+        await self.sock.send_all(to_send)
+        await self.sock.aclose()
+        self.sock = None
         self.state.receive_bytes(None)
+
