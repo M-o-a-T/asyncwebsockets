@@ -1,0 +1,33 @@
+Source: trio-websockets
+Maintainer: Matthias Urlichs <matthias@urlichs.de>
+Section: python
+Priority: optional
+Build-Depends: dh-python, python3-setuptools, python3-all, debhelper (>= 9)
+Standards-Version: 3.9.6
+Homepage: https://github.com/M-o-a-T/trio-websockets
+
+Package: python3-trio-websockets
+Architecture: all
+Depends: ${misc:Depends}, ${python3:Depends}
+Description: A websocket library for trio
+ trio-websockets
+ ===============
+ .
+ Trio-websockets is a `trio`_ compatible library for connecting and serving websockets.
+ .
+ It was originally written by Laura Dickinson <l@veriny.tf> as `asyncwebsockets`_
+ This fork dispenses with curio / multio compatibility and renames it to be
+ compatible with the rest of the Trio landscape.
+ .
+ .
+ Installation
+ ------------
+ .
+ To install the latest stable version::
+ .
+     $ pip install trio-websockets
+ .
+ To install the latest development version::
+ .
+     $ pip install git+https://github.com/M-o-a-T/trio-websockets.git#egg=trio_websockets
+
