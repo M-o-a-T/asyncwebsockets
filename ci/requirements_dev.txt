@@ -1,0 +1,7 @@
+-e .
+
+trio
+coverage
+pylint
+pytest
+pytest-trio

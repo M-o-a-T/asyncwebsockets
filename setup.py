@@ -25,7 +25,6 @@ setup(
     description="A websocket library for trio",
     long_description=Path(__file__).with_name("README.rst").read_text(encoding="utf-8"),
     setup_requires=[
-        "setuptools_scm",
         "pytest-runner"
     ],
     install_requires=[
