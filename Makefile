@@ -6,7 +6,7 @@ PATH := /usr/share/sphinx/scripts/python3:${PATH}
 PACKAGE = trio_websockets
 PYTHON ?= python3
 
-PYTEST ?= env PYTHONPATH=. ${PYTHON} $(shell which pytest-3)
+PYTEST ?= env PYTHONPATH=. ${PYTHON} -m pytest
 TEST_OPTIONS ?= -xv --cov=trio_websockets # -vv --full-trace
 PYLINT_RC ?= .pylintrc
 
