@@ -188,6 +188,9 @@ class ClientWebsocket(object):
                     else:
                         return
 
+                else:
+                    raise RuntimeError("I don't understand this message", event)
+
     async def send_message(self, data: Union[str, bytes]):
         """
         Sends a message on the websocket.
