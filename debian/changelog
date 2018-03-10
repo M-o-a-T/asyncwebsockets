@@ -1,3 +1,10 @@
+trio-websockets (0.2.1) smurf; urgency=medium
+
+  * raise error on unknown message
+  * don't throw an error when we close the connection
+
+ -- Matthias Urlichs <matthias@urlichs.de>  Sat, 10 Mar 2018 18:29:41 +0100
+
 trio-websockets (0.2.1~dev9-1) smurf; urgency=low
 
   * source package automatically created by stdeb 0.8.5
