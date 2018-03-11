@@ -5,3 +5,4 @@ coverage
 pylint
 pytest
 pytest-trio
+pytest-cov

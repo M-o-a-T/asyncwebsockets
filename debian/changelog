@@ -1,4 +1,10 @@
-trio-websockets (0.2.1) smurf; urgency=medium
+trio-websockets (0.2.1~dev9.2-1) unstable; urgency=medium
+
+  * Travis update
+
+ -- Matthias Urlichs <matthias@urlichs.de>  Sun, 11 Mar 2018 09:03:58 +0100
+
+trio-websockets (0.2.1~dev9.1-1) smurf; urgency=medium
 
   * raise error on unknown message
   * don't throw an error when we close the connection
