@@ -1,3 +1,10 @@
+trio-websockets (0.2.1~dev10.1-1) unstable; urgency=medium
+
+  * Add abstract message for data.
+  * Updated deprecated code.
+
+ -- Matthias Urlichs <matthias@urlichs.de>  Thu, 28 Feb 2019 20:39:39 +0100
+
 trio-websockets (0.2.1~dev9.2-1) unstable; urgency=medium
 
   * Travis update
