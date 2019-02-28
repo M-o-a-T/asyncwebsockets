@@ -15,8 +15,15 @@ class WebsocketMessage:
     Represents a message.
     """
 
+class WebsocketDataMessage(WebsocketMessage):
+    """
+    Represents a data message.
 
-class WebsocketTextMessage(WebsocketMessage):
+    Abstract parent of BytesMesage and TextMessage.
+    """
+
+
+class WebsocketTextMessage(WebsocketDataMessage):
     """
     Represents a plaintext based message.
     """
@@ -25,7 +32,7 @@ class WebsocketTextMessage(WebsocketMessage):
         self.data = data
 
 
-class WebsocketBytesMessage(WebsocketMessage):
+class WebsocketBytesMessage(WebsocketDataMessage):
     """
     Represents a binary bytes based message.
     """
@@ -124,7 +131,7 @@ class ClientWebsocket(object):
             if _ssl is True:
                 _ssl = {}
             _ssl = self._create_ssl_ctx(_ssl)
-            _sock = trio.ssl.SSLStream(_sock, _ssl, server_hostname=self._address[0], https_compatible=True)
+            _sock = trio.SSLStream(_sock, _ssl, server_hostname=self._address[0], https_compatible=True)
             await _sock.do_handshake()
         self.sock = _sock
         self.state = WSConnection(ConnectionType.CLIENT, host=self._address[0],
